@@ -27,3 +27,16 @@ body.dark-mode{background:#07111f;color:#eaf4ff}body.dark-mode .section:not(.con
 body.large-text{font-size:18px}.no-animations *{transition:none!important;animation:none!important;scroll-behavior:auto!important}.reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease .1s,transform .7s ease .1s;will-change:opacity,transform}.reveal.visible{opacity:1;transform:translateY(0)}
 @media(max-width:900px){nav{display:none;position:absolute;top:70px;left:4%;right:4%;padding:10px;background:#081523;border:1px solid var(--line);border-radius:15px;flex-direction:column;align-items:stretch}nav.active{display:flex}.menu-toggle{display:block}.cards{grid-template-columns:repeat(2,1fr)}.hero-stats{gap:24px}.features{grid-template-columns:1fr;gap:50px}.about-grid{grid-template-columns:1fr}.contact-section{grid-template-columns:1fr;gap:40px}.footer{grid-template-columns:1fr}}
 @media(max-width:560px){.section{padding:65px 5%}.hero{padding:120px 5% 55px}.hero h1{font-size:2.7rem}.hero-stats{flex-wrap:wrap}.cards,.steps{grid-template-columns:1fr}.site-header{padding:12px 5%}.settings-grid{grid-template-columns:1fr}.quote-form label{grid-template-columns:1fr;gap:6px}.contact-details{font-size:.9rem}.footer{grid-template-columns:1fr;padding:25px 5%;gap:18px}.services-image{border-radius:16px}}
+html, body {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background-image: url("assets/background.jpg");
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+}
