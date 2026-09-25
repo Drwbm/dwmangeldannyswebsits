@@ -40,3 +40,16 @@ body {
   background-attachment: fixed;
   min-height: 100vh;
 }
+/* Sky blue text for selected sections */
+.sky-blue-text {
+  color: #38BDF8;
+}
+
+.sky-blue-text h1,
+.sky-blue-text h2,
+.sky-blue-text h3,
+.sky-blue-text p,
+.sky-blue-text li,
+.sky-blue-text strong {
+  color: #38BDF8;
+}
