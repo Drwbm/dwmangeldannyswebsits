@@ -53,3 +53,9 @@ body {
 .sky-blue-text strong {
   color: #38BDF8;
 }
+/* Make FAQ questions clearly visible */
+.faq summary {
+  color: #38BDF8 !important;
+  font-weight: 700;
+  opacity: 1 !important;
+}
