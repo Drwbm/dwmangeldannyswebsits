@@ -1,1 +1,4 @@
+User-agent: *
+Allow: /
 
+Sitemap: https://drwbm.github.io/dwmangeldannyswebsits/sitemap.xml
