@@ -175,3 +175,13 @@ body {
     width: 100%;
   }
 }
+@media (max-width: 768px) {
+  #mainNav {
+    display: none;
+  }
+
+  #mainNav.active {
+    display: flex !important;
+    flex-direction: column;
+  }
+}
