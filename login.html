@@ -1,1 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <title>Dannywebmakers DWM | Login</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #07111f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: #ffffff;
+    }
+
+    .auth-container {
+      width: 100%;
+      max-width: 420px;
+      background: #ffffff;
+      color: #111827;
+      border-radius: 18px;
+      padding: 30px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .logo-mark {
+      display: inline-block;
+      background: #0066ff;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 24px;
+      padding: 10px 15px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #07111f;
+      margin: 15px 0 5px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #555;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-top: 15px;
+      color: #172033;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      margin-top: 7px;
+      border: 1px solid #bbb;
+      border-radius: 8px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #0066ff;
+      box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.12);
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 20px;
+      background: #0066ff;
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #004dcc;
+    }
+
+    .secondary {
+      background: #07111f;
+    }
+
+    .secondary:hover {
+      background: #15263d;
+    }
+
+    .status {
+      text-align: center;
+      margin-top: 18px;
+      font-weight: 700;
+      min-height: 22px;
+    }
+
+    .links {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .links a {
+      color: #0066ff;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="auth-container">
+
+    <div class="logo">
+      <span class="logo-mark">DWM</span>
+    </div>
+
+    <h1>Welcome to Dannywebmakers</h1>
+
+    <p class="subtitle">
+      Login or create your DWM account
+    </p>
+
+    <!-- LOGIN -->
+    <form id="loginForm">
+
+      <label for="loginEmail">Email</label>
+      <input
+        type="email"
+        id="loginEmail"
+        placeholder="Enter your email"
+        required
+      >
+
+      <label for="loginPassword">Password</label>
+      <input
+        type="password"
+        id="loginPassword"
+        placeholder="Enter your password"
+        required
+      >
+
+      <button type="submit">
+        Login
+      </button>
+
+    </form>
+
+    <!-- CREATE ACCOUNT -->
+    <button type="button" class="secondary" id="signupButton">
+      Create Account
+    </button>
+
+    <p id="statusMessage" class="status"></p>
+
+    <div class="links">
+      <a href="index.html">← Back to website</a>
+    </div>
+
+  </div>
+
+
+  <!-- Firebase Authentication -->
+  <script type="module">
+
+    import { auth } from "./firebase.js";
+
+    import {
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword
+    } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+
+
+    const loginForm = document.getElementById("loginForm");
+    const signupButton = document.getElementById("signupButton");
+    const statusMessage = document.getElementById("statusMessage");
+
+
+    // LOGIN
+    loginForm.addEventListener("submit", async function(event) {
+
+      event.preventDefault();
+
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+
+      statusMessage.textContent = "Logging in...";
+      statusMessage.style.color = "#0066ff";
+
+      try {
+
+        const userCredential =
+          await signInWithEmailAndPassword(auth, email, password);
+
+        statusMessage.textContent =
+          "Login successful! Welcome.";
+
+        statusMessage.style.color = "green";
+
+        console.log("Logged in user:", userCredential.user);
+
+      } catch (error) {
+
+        console.error(error);
+
+        statusMessage.textContent =
+          "Login failed: " + getFirebaseError(error.code);
+
+        statusMessage.style.color = "red";
+      }
+
+    });
+
+
+    // CREATE ACCOUNT
+    signupButton.addEventListener("click", async function() {
+
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+
+      if (!email || !password) {
+
+        statusMessage.textContent =
+          "Enter an email and password first.";
+
+        statusMessage.style.color = "red";
+
+        return;
+      }
+
+      if (password.length < 6) {
+
+        statusMessage.textContent =
+          "Password must be at least 6 characters.";
+
+        statusMessage.style.color = "red";
+
+        return;
+      }
+
+      statusMessage.textContent =
+        "Creating your account...";
+
+      statusMessage.style.color = "#0066ff";
+
+      try {
+
+        const userCredential =
+          await createUserWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
+
+        statusMessage.textContent =
+          "Account created successfully!";
+
+        statusMessage.style.color = "green";
+
+        console.log("New user:", userCredential.user);
+
+      } catch (error) {
+
+        console.error(error);
+
+        statusMessage.textContent =
+          "Account creation failed: " +
+          getFirebaseError(error.code);
+
+        statusMessage.style.color = "red";
+      }
+
+    });
+
+
+    // Firebase error messages
+    function getFirebaseError(code) {
+
+      switch (code) {
+
+        case "auth/email-already-in-use":
+          return "This email already has an account.";
+
+        case "auth/invalid-email":
+          return "Please enter a valid email address.";
+
+        case "auth/weak-password":
+          return "Password is too weak.";
+
+        case "auth/invalid-credential":
+          return "Email or password is incorrect.";
+
+        case "auth/user-not-found":
+          return "No account was found with this email.";
+
+        case "auth/wrong-password":
+          return "Incorrect password.";
+
+        case "auth/too-many-requests":
+          return "Too many attempts. Please try again later.";
+
+        default:
+          return "Please try again.";
+      }
+    }
+
+  </script>
+
+</body>
+</html>
