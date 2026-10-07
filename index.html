@@ -236,5 +236,50 @@
     <p class="copyright">© <span id="year"></span> Dannywebmakers DWM. All rights reserved.</p>
   </footer>
   <script src="script.js"></script>
+<!-- Cookie Banner -->
+<div id="cookie-banner" class="cookie-banner">
+  <div class="cookie-content">
+    <h3>🍪 We Use Cookies</h3>
+
+    <p>
+      We use cookies to help make our website work properly, improve your
+      browsing experience, and understand how visitors use our website.
+      By clicking "Accept Cookies", you agree to our use of cookies.
+    </p>
+
+    <div class="cookie-buttons">
+      <button id="accept-cookies" class="cookie-accept">
+        Accept Cookies
+      </button>
+
+      <button id="close-cookies" class="cookie-close">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const cookieBanner = document.getElementById("cookie-banner");
+  const acceptCookies = document.getElementById("accept-cookies");
+  const closeCookies = document.getElementById("close-cookies");
+
+  // Show banner if visitor has not made a choice
+  if (!localStorage.getItem("cookieChoice")) {
+    cookieBanner.style.display = "flex";
+  }
+
+  // Accept cookies
+  acceptCookies.addEventListener("click", function () {
+    localStorage.setItem("cookieChoice", "accepted");
+    cookieBanner.style.display = "none";
+  });
+
+  // Close banner
+  closeCookies.addEventListener("click", function () {
+    localStorage.setItem("cookieChoice", "closed");
+    cookieBanner.style.display = "none";
+  });
+</script>
 </body>
 </html>
