@@ -281,5 +281,31 @@
     cookieBanner.style.display = "none";
   });
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const menuButton = document.querySelector(".menu-toggle");
+  const mainNav = document.getElementById("mainNav");
+
+  if (menuButton && mainNav) {
+    menuButton.addEventListener("click", function () {
+      mainNav.classList.toggle("active");
+
+      const isOpen = mainNav.classList.contains("active");
+      menuButton.setAttribute("aria-expanded", isOpen);
+    });
+
+    // Close menu after clicking a link
+    mainNav.querySelectorAll("a").forEach(function (link) {
+      link.addEventListener("click", function () {
+        mainNav.classList.remove("active");
+        menuButton.setAttribute("aria-expanded", "false");
+      });
+    });
+  }
+});
+</script>
+
+</body>
+</html>
 </body>
 </html>
