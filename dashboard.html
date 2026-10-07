@@ -1,1 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <title>DWM Dashboard</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #071426;
+      color: #111;
+    }
+
+    .dashboard {
+      max-width: 700px;
+      margin: 40px auto;
+      background: white;
+      padding: 35px 25px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 110px;
+      height: 80px;
+      background: #0878ff;
+      color: white;
+      border-radius: 16px;
+      font-size: 38px;
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      color: #071426;
+      font-size: 30px;
+      margin-bottom: 10px;
+    }
+
+    .email {
+      color: #0878ff;
+      font-weight: 700;
+      word-break: break-word;
+      margin-bottom: 30px;
+    }
+
+    .cards {
+      display: grid;
+      gap: 15px;
+      margin-top: 25px;
+    }
+
+    .card {
+      padding: 20px;
+      background: #f1f5f9;
+      border-radius: 14px;
+      text-align: left;
+      border-left: 5px solid #0878ff;
+    }
+
+    .card h3 {
+      margin: 0 0 7px;
+      color: #071426;
+    }
+
+    .card p {
+      margin: 0;
+      color: #444;
+    }
+
+    .logout {
+      margin-top: 30px;
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      background: #071426;
+      color: white;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .logout:hover {
+      background: #0878ff;
+    }
+
+    .status {
+      margin-top: 15px;
+      font-weight: 700;
+      color: green;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="dashboard">
+
+    <div class="logo">DWM</div>
+
+    <h1>Welcome to Dannywebmakers</h1>
+
+    <p>You are successfully logged in.</p>
+
+    <div class="email" id="userEmail">
+      Checking account...
+    </div>
+
+    <div class="cards">
+
+      <div class="card">
+        <h3>👤 My Account</h3>
+        <p>Manage your DWM account and login information.</p>
+      </div>
+
+      <div class="card">
+        <h3>📋 My Projects</h3>
+        <p>View and manage your website projects.</p>
+      </div>
+
+      <div class="card">
+        <h3>⚙️ Settings</h3>
+        <p>Account and website settings.</p>
+      </div>
+
+    </div>
+
+    <button class="logout" id="logoutBtn">
+      Logout
+    </button>
+
+    <div class="status" id="status"></div>
+
+  </div>
+
+
+  <script type="module">
+
+    import { auth } from "./firebase-config.js";
+
+    import {
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+
+
+    // Check if user is logged in
+    onAuthStateChanged(auth, (user) => {
+
+      if (user) {
+
+        document.getElementById("userEmail").textContent =
+          user.email;
+
+      } else {
+
+        // User is not logged in
+        window.location.href = "login.html";
+
+      }
+
+    });
+
+
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+
+      try {
+
+        await signOut(auth);
+
+        window.location.href = "login.html";
+
+      } catch (error) {
+
+        console.error(error);
+
+        document.getElementById("status").textContent =
+          "Logout failed. Please try again.";
+
+      }
+
+    });
+
+  </script>
+
+</body>
+</html>
