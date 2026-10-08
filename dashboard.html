@@ -73,6 +73,13 @@
       border-radius: 14px;
       text-align: left;
       border-left: 5px solid #0878ff;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.12);
     }
 
     .card h3 {
@@ -83,6 +90,110 @@
     .card p {
       margin: 0;
       color: #444;
+    }
+
+    /* PROJECTS SECTION */
+
+    #projectsSection {
+      display: none;
+      margin-top: 30px;
+      text-align: left;
+      border-top: 2px solid #e5e7eb;
+      padding-top: 25px;
+    }
+
+    #projectsSection h2 {
+      color: #071426;
+      margin-top: 0;
+    }
+
+    .project-form {
+      background: #f1f5f9;
+      padding: 20px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+    }
+
+    .project-form label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #071426;
+    }
+
+    .project-form input,
+    .project-form textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #bbb;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: Arial, sans-serif;
+    }
+
+    .project-form textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .add-project {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 9px;
+      background: #0878ff;
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .add-project:hover {
+      background: #005dcc;
+    }
+
+    .project {
+      background: #f1f5f9;
+      border-left: 5px solid #0878ff;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 15px;
+    }
+
+    .project h3 {
+      margin: 0 0 8px;
+      color: #071426;
+    }
+
+    .project p {
+      color: #444;
+      margin: 6px 0;
+    }
+
+    .project a {
+      display: inline-block;
+      margin-top: 10px;
+      color: #0878ff;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .project a:hover {
+      text-decoration: underline;
+    }
+
+    .close-projects {
+      width: 100%;
+      padding: 12px;
+      margin-top: 5px;
+      border: none;
+      border-radius: 9px;
+      background: #071426;
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
     }
 
     .logout {
@@ -114,6 +225,10 @@
     .error {
       color: #d00000;
     }
+
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 
@@ -135,6 +250,9 @@
       Connecting to your account...
     </div>
 
+
+    <!-- DASHBOARD CARDS -->
+
     <div class="cards">
 
       <div class="card">
@@ -142,7 +260,9 @@
         <p>Manage your DWM account and login information.</p>
       </div>
 
-      <div class="card">
+      <!-- MY PROJECTS -->
+
+      <div class="card" id="projectsCard">
         <h3>📋 My Projects</h3>
         <p>View and manage your website projects.</p>
       </div>
@@ -153,6 +273,72 @@
       </div>
 
     </div>
+
+
+    <!-- PROJECTS MANAGER -->
+
+    <div id="projectsSection">
+
+      <h2>📋 My Projects</h2>
+
+      <div class="project-form">
+
+        <h3>Add a Website Project</h3>
+
+        <label for="projectName">
+          Project Name
+        </label>
+
+        <input
+          type="text"
+          id="projectName"
+          placeholder="Example: Dannywebmakers Website"
+        >
+
+        <label for="projectDescription">
+          Description
+        </label>
+
+        <textarea
+          id="projectDescription"
+          placeholder="Describe your website project..."
+        ></textarea>
+
+        <label for="projectUrl">
+          Website Link
+        </label>
+
+        <input
+          type="url"
+          id="projectUrl"
+          placeholder="https://example.com"
+        >
+
+        <button
+          class="add-project"
+          id="addProjectBtn"
+        >
+          + Add Project
+        </button>
+
+      </div>
+
+
+      <h3>Your Projects</h3>
+
+      <div id="projectsList">
+        Loading projects...
+      </div>
+
+      <button
+        class="close-projects"
+        id="closeProjectsBtn"
+      >
+        ← Back to Dashboard
+      </button>
+
+    </div>
+
 
     <button class="logout" id="logoutBtn">
       Logout
@@ -176,60 +362,87 @@
       doc,
       getDoc,
       setDoc,
-      serverTimestamp
+      serverTimestamp,
+      collection,
+      addDoc,
+      getDocs
     } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
 
-    // Check if user is logged in
+    const userEmail =
+      document.getElementById("userEmail");
+
+    const accountStatus =
+      document.getElementById("accountStatus");
+
+    const projectsCard =
+      document.getElementById("projectsCard");
+
+    const projectsSection =
+      document.getElementById("projectsSection");
+
+    const closeProjectsBtn =
+      document.getElementById("closeProjectsBtn");
+
+    const addProjectBtn =
+      document.getElementById("addProjectBtn");
+
+    const projectsList =
+      document.getElementById("projectsList");
+
+    let currentUser = null;
+
+
+    // CHECK LOGIN
+
     onAuthStateChanged(auth, async (user) => {
 
       if (user) {
 
-        // Show logged-in email
-        document.getElementById("userEmail").textContent =
-          user.email;
+        currentUser = user;
+
+        userEmail.textContent = user.email;
 
         try {
 
-          // Each user gets their own protected document
-          const userRef = doc(db, "users", user.uid);
+          const userRef =
+            doc(db, "users", user.uid);
 
-          const userSnapshot = await getDoc(userRef);
+          const userSnapshot =
+            await getDoc(userRef);
 
           if (!userSnapshot.exists()) {
 
-            // Create the user's account document
             await setDoc(userRef, {
               email: user.email,
               createdAt: serverTimestamp()
             });
 
-            document.getElementById("accountStatus").textContent =
+            accountStatus.textContent =
               "Your DWM account has been connected securely.";
 
           } else {
 
-            document.getElementById("accountStatus").textContent =
+            accountStatus.textContent =
               "Your DWM account is connected securely.";
 
           }
 
-          document.getElementById("accountStatus").classList.add("success");
+          accountStatus.classList.add("success");
 
         } catch (error) {
 
           console.error("Firestore error:", error);
 
-          document.getElementById("accountStatus").textContent =
+          accountStatus.textContent =
             "Account connection failed. Please try again.";
 
-          document.getElementById("accountStatus").classList.add("error");
+          accountStatus.classList.add("error");
 
         }
 
       } else {
 
-        // User is not logged in
         window.location.href = "login.html";
 
       }
@@ -237,27 +450,258 @@
     });
 
 
-    // Logout
-    document.getElementById("logoutBtn").addEventListener("click", async () => {
+    // OPEN PROJECTS
+
+    projectsCard.addEventListener("click", async () => {
+
+      projectsSection.style.display = "block";
+
+      projectsSection.scrollIntoView({
+        behavior: "smooth"
+      });
+
+      await loadProjects();
+
+    });
+
+
+    // CLOSE PROJECTS
+
+    closeProjectsBtn.addEventListener("click", () => {
+
+      projectsSection.style.display = "none";
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
+    });
+
+
+    // LOAD PROJECTS
+
+    async function loadProjects() {
+
+      if (!currentUser) {
+        return;
+      }
+
+      projectsList.innerHTML =
+        "Loading your projects...";
 
       try {
 
-        await signOut(auth);
+        const projectsRef =
+          collection(
+            db,
+            "users",
+            currentUser.uid,
+            "projects"
+          );
 
-        window.location.href = "login.html";
+        const snapshot =
+          await getDocs(projectsRef);
+
+        if (snapshot.empty) {
+
+          projectsList.innerHTML =
+            "<p>You don't have any projects yet. Add your first website project above.</p>";
+
+          return;
+        }
+
+        projectsList.innerHTML = "";
+
+        snapshot.forEach((projectDoc) => {
+
+          const project =
+            projectDoc.data();
+
+          const projectBox =
+            document.createElement("div");
+
+          projectBox.className = "project";
+
+          const name =
+            document.createElement("h3");
+
+          name.textContent =
+            "🌐 " + (project.name || "Unnamed Project");
+
+          const description =
+            document.createElement("p");
+
+          description.textContent =
+            project.description || "No description.";
+
+          projectBox.appendChild(name);
+          projectBox.appendChild(description);
+
+
+          if (project.url) {
+
+            const link =
+              document.createElement("a");
+
+            link.href = project.url;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+
+            link.textContent =
+              "View Website →";
+
+            projectBox.appendChild(link);
+
+          }
+
+          projectsList.appendChild(projectBox);
+
+        });
 
       } catch (error) {
 
-        console.error(error);
+        console.error("Project loading error:", error);
 
-        document.getElementById("status").textContent =
-          "Logout failed. Please try again.";
+        projectsList.innerHTML =
+          "<p class='error'>Unable to load your projects. Check your Firestore rules.</p>";
 
-        document.getElementById("status").classList.add("error");
+      }
+
+    }
+
+
+    // ADD PROJECT
+
+    addProjectBtn.addEventListener("click", async () => {
+
+      if (!currentUser) {
+
+        alert("You must be logged in first.");
+
+        return;
+      }
+
+      const name =
+        document.getElementById("projectName")
+          .value.trim();
+
+      const description =
+        document.getElementById("projectDescription")
+          .value.trim();
+
+      const url =
+        document.getElementById("projectUrl")
+          .value.trim();
+
+
+      if (!name) {
+
+        alert("Please enter a project name.");
+
+        return;
+      }
+
+
+      addProjectBtn.disabled = true;
+
+      addProjectBtn.textContent =
+        "Adding Project...";
+
+
+      try {
+
+        const projectsRef =
+          collection(
+            db,
+            "users",
+            currentUser.uid,
+            "projects"
+          );
+
+        await addDoc(projectsRef, {
+
+          name: name,
+
+          description: description,
+
+          url: url,
+
+          createdAt: serverTimestamp()
+
+        });
+
+
+        document.getElementById("projectName")
+          .value = "";
+
+        document.getElementById("projectDescription")
+          .value = "";
+
+        document.getElementById("projectUrl")
+          .value = "";
+
+
+        addProjectBtn.textContent =
+          "Project Added ✓";
+
+        await loadProjects();
+
+
+        setTimeout(() => {
+
+          addProjectBtn.textContent =
+            "+ Add Project";
+
+          addProjectBtn.disabled = false;
+
+        }, 1500);
+
+
+      } catch (error) {
+
+        console.error("Add project error:", error);
+
+        alert(
+          "Project could not be added. Check your Firestore rules."
+        );
+
+        addProjectBtn.textContent =
+          "+ Add Project";
+
+        addProjectBtn.disabled = false;
 
       }
 
     });
+
+
+    // LOGOUT
+
+    document.getElementById("logoutBtn")
+      .addEventListener("click", async () => {
+
+        try {
+
+          await signOut(auth);
+
+          window.location.href =
+            "login.html";
+
+        } catch (error) {
+
+          console.error(error);
+
+          document.getElementById("status")
+            .textContent =
+            "Logout failed. Please try again.";
+
+          document.getElementById("status")
+            .classList.add("error");
+
+        }
+
+      });
 
   </script>
 
