@@ -52,6 +52,12 @@
       color: #0878ff;
       font-weight: 700;
       word-break: break-word;
+      margin-bottom: 15px;
+    }
+
+    .account-status {
+      color: #16803c;
+      font-weight: 700;
       margin-bottom: 30px;
     }
 
@@ -99,7 +105,14 @@
     .status {
       margin-top: 15px;
       font-weight: 700;
+    }
+
+    .success {
       color: green;
+    }
+
+    .error {
+      color: #d00000;
     }
   </style>
 </head>
@@ -116,6 +129,10 @@
 
     <div class="email" id="userEmail">
       Checking account...
+    </div>
+
+    <div class="account-status" id="accountStatus">
+      Connecting to your account...
     </div>
 
     <div class="cards">
@@ -148,21 +165,67 @@
 
   <script type="module">
 
-    import { auth } from "./firebase-config.js";
+    import { auth, db } from "./firebase-config.js";
 
     import {
       onAuthStateChanged,
       signOut
     } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 
+    import {
+      doc,
+      getDoc,
+      setDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+
 
     // Check if user is logged in
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
 
       if (user) {
 
+        // Show logged-in email
         document.getElementById("userEmail").textContent =
           user.email;
+
+        try {
+
+          // Each user gets their own protected document
+          const userRef = doc(db, "users", user.uid);
+
+          const userSnapshot = await getDoc(userRef);
+
+          if (!userSnapshot.exists()) {
+
+            // Create the user's account document
+            await setDoc(userRef, {
+              email: user.email,
+              createdAt: serverTimestamp()
+            });
+
+            document.getElementById("accountStatus").textContent =
+              "Your DWM account has been connected securely.";
+
+          } else {
+
+            document.getElementById("accountStatus").textContent =
+              "Your DWM account is connected securely.";
+
+          }
+
+          document.getElementById("accountStatus").classList.add("success");
+
+        } catch (error) {
+
+          console.error("Firestore error:", error);
+
+          document.getElementById("accountStatus").textContent =
+            "Account connection failed. Please try again.";
+
+          document.getElementById("accountStatus").classList.add("error");
+
+        }
 
       } else {
 
@@ -189,6 +252,8 @@
 
         document.getElementById("status").textContent =
           "Logout failed. Please try again.";
+
+        document.getElementById("status").classList.add("error");
 
       }
 
